@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		
+		<!-- Fonts -->
+		<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+		
+    <title><%= htmlWebpackPlugin.options.title %></title>
+    <% if (env && env.OG_URL) { %>
+    <meta property="og:url" content="<%= env.OG_URL %>" />
+    <% } %>
+    <% if (env && env.OG_TITLE) { %>
+    <meta property="og:title" content="<%= env.OG_TITLE %>" />
+    <% } %>
+    <% if (env && env.OG_DESCRIPTION) { %>
+    <meta property="og:description" content="<%= env.OG_DESCRIPTION %>" />
+    <% } %>
+    <% if (env && env.OG_IMAGE) { %>
+    <meta property="og:image" content="<%= env.OG_IMAGE %>" />
+    <% } %>
+    <% if (env && env.OG_TYPE) { %>
+    <meta property="og:type" content="<%= env.OG_TYPE %>" />
+    <% } %>
+    <%= htmlWebpackPlugin.tags.headTags %>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      <% Object.entries(env || {}).forEach(([key, value]) => { %>
+      window.<%- key %> = `<%- value %>`;
+      <% }); %>
+      window.__NODE_ENV__ = "<%= NODE_ENV %>";
+    </script>
+    <%= htmlWebpackPlugin.tags.bodyTags %>
+  </body>
+</html>

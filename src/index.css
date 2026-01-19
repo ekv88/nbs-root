@@ -1,0 +1,18 @@
+@import "tailwindcss";
+@reference "tailwindcss";
+
+@layer base {
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-slate-950 text-slate-100 font-['Roboto'];
+  }
+}
