@@ -1,10 +1,9 @@
 {
   "name": "nbs-root",
   "version": "0.1.0",
-  "private": true,
   "scripts": {
-		"start": "npm run dev",
-		"build": "npm run build:prod",
+    "start": "npm run dev",
+    "build": "npm run build:prod",
     "dev": "cross-env ENV_PROFILE=development webpack serve --config scripts/webpack.config.js",
     "build:prod": "cross-env ENV_PROFILE=production webpack --config scripts/webpack.config.js",
     "build:staging": "cross-env ENV_PROFILE=staging webpack --config scripts/webpack.config.js",
