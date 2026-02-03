@@ -292,6 +292,10 @@ function createWarningViewer(options = {}) {
       process.stdin.setRawMode(true);
     }
 
+    const clearConsole = () => {
+      process.stdout.write("\x1b[2J\x1b[0f");
+    };
+
     const handler = (_chunk, key) => {
       if (!key) {
         return;
@@ -301,10 +305,12 @@ function createWarningViewer(options = {}) {
       }
       if (key.ctrl && key.name === "a" && hasWarnings) {
         isFullView = true;
+        clearConsole();
         printFull();
       } else if (key.ctrl && key.name === "q" && hasWarnings) {
         if (isFullView) {
           isFullView = false;
+          clearConsole();
           printSummary();
           printHint();
         }

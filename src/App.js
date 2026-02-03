@@ -13,7 +13,12 @@ function App() {
           {ascii}
         </pre>
 
-        <section className="w-full rounded-2xl border border-slate-800 bg-slate-900/60 p-8 shadow-[0_0_80px_rgba(15,23,42,0.45)] backdrop-blur">
+        <section
+          className={[
+            "w-full rounded-2xl border border-slate-800 bg-slate-900/60 p-8",
+            "shadow-[0_0_80px_rgba(15,23,42,0.45)] backdrop-blur",
+          ].join(" ")}
+        >
           <div className="grid gap-6 md:grid-cols-2">
             <section>
               <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">
@@ -71,20 +76,14 @@ function App() {
                   <span className="mt-1 h-1.5 w-1.5 rounded-full bg-indigo-400" />
                   <span>
                     Update lint rules in{" "}
-                    <code className="rounded bg-slate-800 px-2 py-1">
-                      eslint.config.mjs
-                    </code>
-                    .
+                    <code className="rounded bg-slate-800 px-2 py-1">eslint.config.mjs</code>.
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="mt-1 h-1.5 w-1.5 rounded-full bg-indigo-400" />
                   <span>
                     Tweak Tailwind base styles in{" "}
-                    <code className="rounded bg-slate-800 px-2 py-1">
-                      src/index.css
-                    </code>
-                    .
+                    <code className="rounded bg-slate-800 px-2 py-1">src/index.css</code>.
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
