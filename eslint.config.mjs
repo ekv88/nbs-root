@@ -127,6 +127,7 @@ export default [
       "@stylistic/comma-dangle": "off",
       "@stylistic/function-paren-newline": "off",
       "@stylistic/linebreak-style": "off",
+      "@stylistic/jsx-child-element-spacing": "warn",
       "@stylistic/padding-line-between-statements": "off",
       "@stylistic/quotes": "off",
       "@stylistic/semi": "off",

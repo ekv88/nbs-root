@@ -24,6 +24,7 @@
     "@pmmmwh/react-refresh-webpack-plugin": "^0.6.2",
     "@strv/eslint-config-react": "^6.0.0",
     "@tailwindcss/postcss": "^4.1.18",
+    "babel-plugin-react-compiler": "latest",
     "babel-loader": "^10.0.0",
     "compression-webpack-plugin": "^11.1.0",
     "copy-webpack-plugin": "^13.0.1",

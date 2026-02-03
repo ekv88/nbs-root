@@ -3,4 +3,5 @@ module.exports = {
     ["@babel/preset-env", { targets: "defaults" }],
     ["@babel/preset-react", { runtime: "automatic" }],
   ],
+  plugins: ["babel-plugin-react-compiler"],
 };

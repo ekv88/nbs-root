@@ -46,7 +46,10 @@ function createBaseConfig({
                 ["@babel/preset-env", { targets: "defaults" }],
                 ["@babel/preset-react", { runtime: "automatic" }],
               ],
-              plugins: enableReactRefresh ? ["react-refresh/babel"] : [],
+              plugins: [
+                "babel-plugin-react-compiler",
+                ...(enableReactRefresh ? ["react-refresh/babel"] : []),
+              ],
             },
           },
         },
