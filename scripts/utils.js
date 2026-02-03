@@ -234,10 +234,19 @@ function createWarningViewer(options = {}) {
       .map(item => typeof item === "string" ? item : item && item.message ? item.message : "")
       .find(message => typeof message === "string" && message.includes("ESLint results"));
     if (raw) {
-      summaryText = raw.trim();
-      fullText = summaryText;
-      hasWarnings = summaryText.length > 0;
-      isRawSummary = true;
+      const marker = "__ESLINT_FULL__";
+      const markerIndex = raw.indexOf(marker);
+      if (markerIndex !== -1) {
+        summaryText = raw.slice(0, markerIndex).trim();
+        fullText = raw.slice(markerIndex + marker.length).trim();
+        hasWarnings = summaryText.length > 0;
+        isRawSummary = false;
+      } else {
+        summaryText = raw.trim();
+        fullText = summaryText;
+        hasWarnings = summaryText.length > 0;
+        isRawSummary = true;
+      }
       return;
     }
     const formatted = formatWarnings(warnings, options);
@@ -260,6 +269,9 @@ function createWarningViewer(options = {}) {
     }
     process.stdout.write("\r\x1b[2K");
     console.log(fullText);
+    if (process.stdin.isTTY && !isRawSummary) {
+      console.log(colorize(colors.gray, "Press Ctrl+Q to exit full view."));
+    }
   };
 
   const printHint = () => {

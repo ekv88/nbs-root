@@ -5,12 +5,9 @@ const severityLabels = {
   2: "error",
 };
 
-module.exports = results => {
-  if (!Array.isArray(results) || results.length === 0) {
-    return "";
-  }
+const FULL_MARKER = "__ESLINT_FULL__";
 
-  const limitPerFile = Number(process.env.ESLINT_MAX_WARNINGS_PER_FILE || 2);
+const formatResults = (results, limitPerFile) => {
   const lines = [];
   let totalWarnings = 0;
   let totalErrors = 0;
@@ -32,7 +29,8 @@ module.exports = results => {
 
     lines.push(paint(result.filePath || "Unknown file", "gray"));
 
-    messages.slice(0, limitPerFile).forEach(item => {
+    const effectiveLimit = Number.isFinite(limitPerFile) ? limitPerFile : messages.length;
+    messages.slice(0, effectiveLimit).forEach(item => {
       const severity = severityLabels[item.severity] || "warning";
       const line = item.line || 0;
       const column = item.column || 0;
@@ -47,8 +45,8 @@ module.exports = results => {
       );
     });
 
-    if (messages.length > limitPerFile) {
-      lines.push(paint(`  ... ${messages.length - limitPerFile} more`, "gray"));
+    if (messages.length > effectiveLimit) {
+      lines.push(paint(`  ... ${messages.length - effectiveLimit} more`, "gray"));
     }
 
     lines.push(
@@ -68,4 +66,16 @@ module.exports = results => {
   );
 
   return lines.join("\n");
+};
+
+module.exports = results => {
+  if (!Array.isArray(results) || results.length === 0) {
+    return "";
+  }
+
+  const limitPerFile = Number(process.env.ESLINT_MAX_WARNINGS_PER_FILE || 2);
+  const summary = formatResults(results, limitPerFile);
+  const full = formatResults(results, Number.POSITIVE_INFINITY);
+
+  return `${summary}\n${FULL_MARKER}\n${full}`;
 };
