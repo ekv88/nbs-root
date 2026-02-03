@@ -4,9 +4,6 @@ Minimal, project-agnostic tooling package built around Tailwind and Webpack. The
 
 ![preview](.github/intro.gif)
 
-> [!WARNING]
-> Work in progress. Do not use in production.
-
 ## What this includes
 - Tailwind CSS + PostCSS pipeline (see `tailwind.config.cjs`, `postcss.config.cjs`).
 - Webpack dev server and production builds with environment profiles.
