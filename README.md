@@ -2,6 +2,8 @@
 
 Minimal, project-agnostic tooling package built around Tailwind and Webpack. The goal is to keep a small, reusable setup that you can drop into different projects to get consistent dev/build scripts and a baseline frontend stack without locking you into a specific product.
 
+![preview](.github/intro.gif)
+
 > [!WARNING]
 > Work in progress. Do not use in production.
 
