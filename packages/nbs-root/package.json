@@ -6,10 +6,13 @@
     "nbs-root": "./bin/nbs-root.js"
   },
   "files": [
-    "bin",
-    "defaults",
-    "scripts",
-    "templates"
+    "bin/*.js",
+    "defaults/*.cjs",
+    "defaults/*.css",
+    "defaults/*.js",
+    "defaults/*.mjs",
+    "scripts/*.js",
+    "templates/*.ejs"
   ],
   "dependencies": {
     "@babel/core": "^7.28.6",
