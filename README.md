@@ -12,14 +12,14 @@ Minimal, project-agnostic tooling package built around Tailwind and Webpack. The
 - Generates multi-route static HTML with `build-ssg:*`
 - Generates AI-readable Markdown site context with `build-ai:*`
 
-## Consumer quick start
+## Project quick start
 Install `nbs-root` into another project:
 
 ```bash
 npm i @ekv88/nbs-root
 ```
 
-Minimal consumer layout:
+Minimal project layout:
 
 ```text
 my-site/
@@ -30,7 +30,7 @@ my-site/
   assets/
 ```
 
-Example consumer scripts:
+Example project scripts:
 
 ```json
 {
@@ -45,7 +45,7 @@ Example consumer scripts:
 }
 ```
 
-By default, the only required project-level config is `.env-cmdrc`. The package provides defaults for Babel, ESLint, PostCSS, a Tailwind-ready CSS pipeline, the HTML template, and the runtime entry. If the consumer creates its own config or bootstrap files, those override the defaults.
+By default, the only required project-level config is `.env-cmdrc`. The package provides defaults for Babel, ESLint, PostCSS, a Tailwind-ready CSS pipeline, the HTML template, and the runtime entry. If a project adds its own config or bootstrap files, those override the defaults.
 
 ## Output modes
 `build:*`
@@ -67,7 +67,7 @@ By default, the only required project-level config is `.env-cmdrc`. The package 
 - Useful for AI SEO / AEO workflows, content audits, and downstream agent ingestion
 
 ## Route-aware SSG
-If a consumer wants multi-route static export, it can provide `src/App.ssg.js` and export:
+If a project wants multi-route static export, it can provide `src/App.ssg.js` and export:
 
 ```js
 export function createStaticApp(route) {
@@ -81,7 +81,7 @@ export function getStaticRoutes() {
 
 If no static module is present, `nbs-root` falls back to the normal app module and renders a single root page.
 
-## Optional consumer overrides
+## Optional project overrides
 - `src/index.js` or `src/index.jsx`
 - `src/index.ejs`
 - `src/App.ssg.js` or `src/App.static.js` or `src/App.server.js`
