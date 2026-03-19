@@ -17,7 +17,7 @@ Install `nbs-root` into another project together with React:
 
 ```bash
 npm install react react-dom
-npm install -D nbs-root
+npm install -D @ekv88/nbs-root
 ```
 
 Minimal consumer layout:

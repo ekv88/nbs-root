@@ -1,7 +1,10 @@
 {
-  "name": "nbs-root",
-  "version": "0.1.0",
+  "name": "@ekv88/nbs-root",
+  "version": "1.0.0",
   "description": "Reusable frontend tooling shell for consumer projects.",
+  "publishConfig": {
+    "access": "public"
+  },
   "bin": {
     "nbs-root": "./bin/nbs-root.js"
   },

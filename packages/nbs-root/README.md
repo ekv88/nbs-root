@@ -75,7 +75,7 @@ If no static app module is present, SSG falls back to the normal app module and 
     "react-dom": "^19.2.3"
   },
   "devDependencies": {
-    "nbs-root": "0.1.0"
+    "@ekv88/nbs-root": "1.0.0"
   }
 }
 ```

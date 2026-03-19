@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint test consumer
+        run: npm run lint:test
+
+      - name: Build test consumer (production)
+        run: npm run build:test:prod
+
+      - name: Build test consumer (staging)
+        run: npm run build:test:staging
+
+      - name: Build SSG test consumer (production)
+        run: npm run build-ssg:test:prod
+
+      - name: Build SSG test consumer (staging)
+        run: npm run build-ssg:test:staging
+
+      - name: Build AI test consumer (production)
+        run: npm run build-ai:test:prod
+
+      - name: Build AI test consumer (staging)
+        run: npm run build-ai:test:staging
+
+      - name: Verify package contents
+        run: npm pack --dry-run -w packages/nbs-root

@@ -14,7 +14,7 @@
     "build-ai:test:prod": "npm run build-ai:prod -w nbs-test",
     "build-ai:test:staging": "npm run build-ai:staging -w nbs-test",
     "lint:test": "npm run lint -w nbs-test",
-    "pack:root": "npm pack -w nbs-root",
+    "pack:root": "npm pack -w packages/nbs-root",
     "postinstall": "simple-git-hooks"
   },
   "devDependencies": {

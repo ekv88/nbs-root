@@ -20,6 +20,6 @@
     "react-router-dom": "^7.13.1"
   },
   "devDependencies": {
-    "nbs-root": "file:../nbs-root"
+    "@ekv88/nbs-root": "file:../nbs-root"
   }
 }
