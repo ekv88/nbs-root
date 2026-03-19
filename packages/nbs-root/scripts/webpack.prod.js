@@ -4,21 +4,29 @@ const CopyPlugin = require("copy-webpack-plugin");
 const ESLintWebpackPlugin = require("eslint-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const { createLoader, createWarningViewer, error, success, warn } = require("./utils");
+const { getAssetsDir, getDistDir, getEslintConfigPath, getProjectRoot } = require("./project-paths");
 
 function createProdConfig() {
   const loader = createLoader("Building codebase...", { leadingNewline: true });
   const warningViewer = createWarningViewer({ limitPerFile: 2 });
+  const assetsDir = getAssetsDir();
+  const distDir = getDistDir();
+  const eslintConfigPath = getEslintConfigPath();
   return {
+    performance: {
+      hints: false,
+    },
     plugins: [
       new MiniCssExtractPlugin({
-        filename: "[name].[contenthash].css",
+        filename: "css/[name].[contenthash].css",
+        chunkFilename: "css/[name].[contenthash].chunk.css",
       }),
       new CompressionPlugin(),
       new CopyPlugin({
         patterns: [
           {
-            from: path.resolve(process.cwd(), "assets"),
-            to: path.resolve(process.cwd(), "dist", "assets"),
+            from: assetsDir,
+            to: path.resolve(distDir, "assets"),
             noErrorOnMissing: true,
           },
         ],
@@ -27,6 +35,15 @@ function createProdConfig() {
         apply(compiler) {
           compiler.hooks.compile.tap("CliLoader", () => {
             loader.start();
+          });
+          compiler.hooks.failed.tap("CliLoader", compilerError => {
+            loader.stop({ newline: true });
+            error("Build failed before completion:");
+            console.error(
+              compilerError && (compilerError.stack || compilerError.message)
+                ? compilerError.stack || compilerError.message
+                : compilerError
+            );
           });
           compiler.hooks.done.tap("CliLoader", stats => {
             loader.stop({ newline: true });
@@ -51,11 +68,13 @@ function createProdConfig() {
         },
       },
       new ESLintWebpackPlugin({
+        context: getProjectRoot(),
         extensions: ["js", "jsx"],
         emitWarning: true,
         failOnError: true,
         failOnWarning: false,
         formatter: path.resolve(__dirname, "eslint-formatter.js"),
+        overrideConfigFile: eslintConfigPath,
       }),
     ],
     optimization: {

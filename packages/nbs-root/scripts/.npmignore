@@ -1,0 +1,8 @@
+*.md
+*.markdown
+*.map
+*.log
+*.tgz
+*.test.*
+*.spec.*
+__tests__/

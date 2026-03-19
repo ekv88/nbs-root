@@ -1,3 +1,4 @@
+import path from "path";
 import react from "@strv/eslint-config-react";
 import optional from "@strv/eslint-config-react/optional";
 import style from "@strv/eslint-config-react/style";
@@ -5,6 +6,9 @@ import importPlugin from "eslint-plugin-import";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
 import unusedImports from "eslint-plugin-unused-imports";
 import globals from "globals";
+
+const projectRoot = path.resolve(process.env.NBS_PROJECT_ROOT || process.cwd());
+const srcDir = path.resolve(projectRoot, "src");
 
 const globs = {
   js: "**/*.{js,jsx}",
@@ -32,6 +36,11 @@ export default [
       parserOptions: {
         requireConfigFile: false,
         ecmaFeatures: { jsx: true },
+        babelOptions: {
+          babelrc: false,
+          configFile: false,
+          presets: [["@babel/preset-react", { runtime: "automatic" }]],
+        },
       },
     },
     plugins: {
@@ -48,7 +57,7 @@ export default [
           extensions: [".js", ".jsx"],
         },
         alias: {
-          map: [["@", "./src"]],
+          map: [["@", srcDir]],
           extensions: [".js", ".jsx"],
         },
       },
@@ -66,7 +75,16 @@ export default [
         {
           alphabetize: { order: "asc", caseInsensitive: true },
           "newlines-between": "never",
-          groups: ["builtin", "external", "internal", "parent", "sibling", "index", "object", "type"],
+          groups: [
+            "builtin",
+            "external",
+            "internal",
+            "parent",
+            "sibling",
+            "index",
+            "object",
+            "type",
+          ],
           pathGroups: [
             {
               pattern: "*.css",
@@ -78,7 +96,7 @@ export default [
         },
       ],
       "no-duplicate-imports": "error",
-      "eqeqeq": ["error", "always"],
+      eqeqeq: ["error", "always"],
       "jsx-a11y/no-autofocus": ["warn", { ignoreNonDOM: true }],
       "jsx-quotes": "off",
       "linebreak-style": "off",
@@ -97,20 +115,20 @@ export default [
       "react/jsx-filename-extension": "off",
       "react/jsx-handler-names": "off",
       "react/jsx-max-depth": "off",
-      "react/jsx-no-useless-fragment": "warn",
       "react/jsx-no-bind": ["warn", { allowFunctions: true }],
+      "react/jsx-no-useless-fragment": "warn",
       "react/jsx-wrap-multilines": [
         "warn",
         { condition: "parens", logical: "parens" },
       ],
+      "react/no-this-in-sfc": "off",
       "react/no-unused-prop-types": "off",
       "react/prop-types": "off",
       "react/react-in-jsx-scope": "off",
       "react/require-default-props": "off",
       "react/sort-prop-types": "off",
-      "semi": "off",
+      semi: "off",
       "semi-style": "off",
-      "react/no-this-in-sfc": "off",
       "simple-import-sort/imports": "off",
       "simple-import-sort/exports": "off",
       "space-infix-ops": "error",
@@ -126,8 +144,8 @@ export default [
       ],
       "@stylistic/comma-dangle": "off",
       "@stylistic/function-paren-newline": "off",
-      "@stylistic/linebreak-style": "off",
       "@stylistic/jsx-child-element-spacing": "warn",
+      "@stylistic/linebreak-style": "off",
       "@stylistic/padding-line-between-statements": "off",
       "@stylistic/quotes": "off",
       "@stylistic/semi": "off",
@@ -137,11 +155,10 @@ export default [
   {
     files: [
       "scripts/**/*.js",
+      "*.config.js",
       "*.config.cjs",
+      "*.config.mjs",
       "commitlint.config.cjs",
-      "babel.config.cjs",
-      "postcss.config.cjs",
-      "tailwind.config.cjs",
     ],
     languageOptions: {
       sourceType: "script",
@@ -152,6 +169,6 @@ export default [
     },
   },
   {
-    ignores: ["dist/**", "node_modules/**"],
+    ignores: ["dist/**", "node_modules/**", "coverage/**"],
   },
 ];

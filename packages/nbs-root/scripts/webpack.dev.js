@@ -3,7 +3,40 @@ const ESLintWebpackPlugin = require("eslint-webpack-plugin");
 const os = require("os");
 const path = require("path");
 
-const { createLoader, createWarningViewer, error, info, paint, success, warn } = require("./utils");
+const {
+  createLoader,
+  createWarningViewer,
+  dim,
+  error,
+  info,
+  paint,
+  success,
+  warn,
+} = require("./utils");
+const { getAssetsDir, getEslintConfigPath, getProjectRoot } = require("./project-paths");
+
+function attachPortInUseHandler({ startupLoader, buildLoader, port, profile }) {
+  const handler = caughtError => {
+    if (!caughtError || caughtError.code !== "EADDRINUSE") {
+      process.removeListener("uncaughtException", handler);
+      throw caughtError;
+    }
+
+    startupLoader.stop({ newline: true });
+    buildLoader.stop();
+    error(`Port ${caughtError.port || port} is already in use.`);
+    dim(
+      `Free that port or set a different PORT in the "${profile}" profile inside .env-cmdrc.`,
+    );
+    process.exit(1);
+  };
+
+  process.prependListener("uncaughtException", handler);
+
+  return () => {
+    process.removeListener("uncaughtException", handler);
+  };
+}
 
 function createDevConfig({
   profile,
@@ -14,12 +47,19 @@ function createDevConfig({
   openBrowser = false,
   enableReactRefresh = false,
 } = {}) {
-  const assetsPath = path.resolve(process.cwd(), "assets");
+  const assetsPath = getAssetsDir();
   const startupLoader = createLoader("Starting up local server...");
   const buildLoader = createLoader("Building codebase...", { leadingNewline: true });
   const warningViewer = createWarningViewer({ limitPerFile: 2 });
+  const eslintConfigPath = getEslintConfigPath();
   warningViewer.attachKeys();
   let isCompiling = false;
+  const detachPortInUseHandler = attachPortInUseHandler({
+    startupLoader,
+    buildLoader,
+    port,
+    profile,
+  });
 
   startupLoader.start();
 
@@ -38,6 +78,7 @@ function createDevConfig({
         if (!devServer) {
           return;
         }
+        detachPortInUseHandler();
         startupLoader.stop();
         process.stdout.write("\r\x1b[1A\x1b[2K");
         buildLoader.stop({ newline: true });
@@ -109,7 +150,7 @@ function createDevConfig({
         index: `${basePath}/index.html`,
       },
       static: {
-        directory: path.resolve(process.cwd(), "assets"),
+        directory: assetsPath,
         publicPath: "/assets",
         serveIndex: true,
       },
@@ -150,8 +191,21 @@ function createDevConfig({
               buildLoader.start();
             }
           });
+          compiler.hooks.failed.tap("CliLoader", compilerError => {
+            isCompiling = false;
+            detachPortInUseHandler();
+            startupLoader.stop();
+            buildLoader.stop({ newline: true });
+            error("Build failed before completion:");
+            console.error(
+              compilerError && (compilerError.stack || compilerError.message)
+                ? compilerError.stack || compilerError.message
+                : compilerError
+            );
+          });
           compiler.hooks.done.tap("FriendlyOutput", stats => {
             isCompiling = false;
+            detachPortInUseHandler();
             buildLoader.stop({ newline: true });
             const info = stats.toJson({ all: false, errors: true, warnings: true });
 
@@ -174,12 +228,14 @@ function createDevConfig({
         },
       },
       new ESLintWebpackPlugin({
+        context: getProjectRoot(),
         extensions: ["js", "jsx"],
         emitError: true,
         emitWarning: true,
         failOnError: false,
         failOnWarning: false,
         formatter: path.resolve(__dirname, "eslint-formatter.js"),
+        overrideConfigFile: eslintConfigPath,
       }),
     ],
   };

@@ -1,0 +1,57 @@
+@import "tailwindcss";
+@reference "tailwindcss";
+
+@layer base {
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-slate-950 text-slate-100 font-['Roboto'];
+  }
+}
+
+@keyframes logo-sheen {
+  0% {
+    background-position: 200% 50%;
+  }
+
+  100% {
+    background-position: -40% 50%;
+  }
+}
+
+@keyframes logo-breathe {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 0.45rem rgba(52, 211, 153, 0.16));
+  }
+
+  50% {
+    filter: drop-shadow(0 0 0.85rem rgba(110, 231, 183, 0.3));
+  }
+}
+
+@layer components {
+  .logo-mark {
+    background-image: linear-gradient(
+      90deg,
+      rgb(167 243 208 / 0.74) 0%,
+      rgb(110 231 183 / 0.82) 40%,
+      rgb(236 253 245 / 0.98) 50%,
+      rgb(110 231 183 / 0.82) 60%,
+      rgb(167 243 208 / 0.74) 100%
+    );
+    background-size: 220% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    animation: logo-sheen 9s linear infinite, logo-breathe 4s ease-in-out infinite;
+    will-change: background-position, filter;
+  }
+}

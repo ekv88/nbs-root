@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { getProjectRoot } = require("./project-paths");
 
 const colors = {
   reset: "\x1b[0m",
@@ -12,6 +13,10 @@ const colors = {
   gray: "\x1b[90m",
   white: "\x1b[97m",
 };
+const INTERNAL_WINDOW_ENV_KEYS = new Set([
+  "ESLINT_MAX_WARNINGS_PER_FILE",
+  "__NODE_ENV__",
+]);
 
 function colorize(color, message) {
   return `${color}${message}${colors.reset}`;
@@ -40,6 +45,37 @@ function dim(message) {
 function paint(message, colorName) {
   const color = colors[colorName] || colors.cyan;
   return colorize(color, message);
+}
+
+function filterPublicEnvVars(envVars = {}) {
+  return Object.fromEntries(
+    Object.entries(envVars).filter(
+      ([key]) => !INTERNAL_WINDOW_ENV_KEYS.has(key)
+    )
+  );
+}
+
+function isValidJsIdentifier(value) {
+  return /^[A-Za-z_$][A-Za-z0-9_$]*$/u.test(value);
+}
+
+function serializeWindowEnvValue(value) {
+  return `\`${String(value)
+    .replaceAll("\\", "\\\\")
+    .replaceAll("`", "\\`")
+    .replaceAll("${", "\\${")}\``;
+}
+
+function createWindowEnvAssignments(envVars = {}) {
+  return Object.entries(filterPublicEnvVars(envVars))
+    .map(([key, value]) => {
+      const target = isValidJsIdentifier(key)
+        ? `window.${key}`
+        : `window[${JSON.stringify(key)}]`;
+
+      return `${target} = ${serializeWindowEnvValue(value)};`;
+    })
+    .join("\n      ");
 }
 
 function normalizeWarningEntry(entry) {
@@ -403,7 +439,7 @@ function banner(title) {
 }
 
 function readEnvConfig() {
-  const envFilePath = path.resolve(process.cwd(), ".env-cmdrc");
+  const envFilePath = path.resolve(getProjectRoot(), ".env-cmdrc");
 
   if (!fs.existsSync(envFilePath)) {
     return { exists: false, data: {} };
@@ -420,9 +456,12 @@ module.exports = {
   info,
   paint,
   createLoader,
+  createWindowEnvAssignments,
   createWarningViewer,
+  filterPublicEnvVars,
   formatWarnings,
   readEnvConfig,
+  serializeWindowEnvValue,
   success,
   warn,
 };

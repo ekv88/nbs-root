@@ -31,9 +31,8 @@
     <div id="root"></div>
     <script>
       <% Object.entries(env || {}).forEach(([key, value]) => { %>
-      window.<%- key %> = `<%- value %>`;
+      window.<%- key %> = <%- serializeWindowEnvValue(value) %>;
       <% }); %>
-      window.__NODE_ENV__ = "<%= NODE_ENV %>";
     </script>
     <%= htmlWebpackPlugin.tags.bodyTags %>
   </body>

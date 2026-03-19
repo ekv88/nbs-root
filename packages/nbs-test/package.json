@@ -1,0 +1,25 @@
+{
+  "name": "nbs-test",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "npm run dev",
+    "dev": "npx --no-install nbs-root dev:development",
+    "build:prod": "npx --no-install nbs-root build:production",
+    "build:staging": "npx --no-install nbs-root build:staging",
+    "build-ssg:prod": "npx --no-install nbs-root build-ssg:production",
+    "build-ssg:staging": "npx --no-install nbs-root build-ssg:staging",
+    "build-ai:prod": "npx --no-install nbs-root build-ai:production",
+    "build-ai:staging": "npx --no-install nbs-root build-ai:staging",
+    "lint": "npx --no-install nbs-root lint"
+  },
+  "dependencies": {
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "react-router": "^7.13.1",
+    "react-router-dom": "^7.13.1"
+  },
+  "devDependencies": {
+    "nbs-root": "file:../nbs-root"
+  }
+}

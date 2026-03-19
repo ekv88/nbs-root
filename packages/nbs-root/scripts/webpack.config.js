@@ -4,7 +4,27 @@ const path = require("path");
 const { WebpackManifestPlugin } = require("webpack-manifest-plugin");
 const { merge } = require("webpack-merge");
 
-const { banner, error, info, readEnvConfig, success, warn } = require("./utils");
+const {
+  banner,
+  error,
+  filterPublicEnvVars,
+  info,
+  readEnvConfig,
+  serializeWindowEnvValue,
+  success,
+  warn,
+} = require("./utils");
+const {
+  getBabelConfigPath,
+  getAppModulePath,
+  getDistDir,
+  getEntryFile,
+  getPostcssConfigPath,
+  getSrcDir,
+  getStyleEntryPath,
+  getTailwindConfigPath,
+  getTemplatePath,
+} = require("./project-paths");
 const { createDevConfig } = require("./webpack.dev");
 const { createProdConfig } = require("./webpack.prod");
 
@@ -15,20 +35,55 @@ function createBaseConfig({
   envVars = {},
   publicPath = "/",
   basePath = "",
-  title = "my-company-v1",
+  title = "Company title",
 } = {}) {
   const resolvedMode = mode || process.env.NODE_ENV || "development";
   const isProd = resolvedMode === "production";
   const enableReactRefresh =
-    resolvedMode === "development" && process.env.ENABLE_REACT_REFRESH === "true";
+    resolvedMode === "development" &&
+    process.env.ENABLE_REACT_REFRESH === "true";
   const resolvedPublicPath = publicPath || "/";
+  const publicEnvVars = filterPublicEnvVars(envVars);
+  const srcDir = getSrcDir();
+  const babelConfigPath = getBabelConfigPath();
+  const postcssConfigPath = getPostcssConfigPath();
+  const tailwindConfigPath = getTailwindConfigPath();
+
+  const createTailwindConfigLoader = () =>
+    tailwindConfigPath
+      ? [
+          {
+            loader: path.resolve(__dirname, "tailwind-config-loader.js"),
+            options: {
+              configPath: tailwindConfigPath,
+            },
+          },
+        ]
+      : [];
+
+  const createStyleLoaders = () => [
+    isProd ? MiniCssExtractPlugin.loader : "style-loader",
+    "css-loader",
+    ...createTailwindConfigLoader(),
+    {
+      loader: "postcss-loader",
+      options: {
+        postcssOptions: {
+          config: postcssConfigPath,
+        },
+      },
+    },
+  ];
 
   return {
     mode: resolvedMode,
-    entry: path.resolve(__dirname, "..", "src", "index"),
+    entry: getEntryFile(),
     output: {
-      path: path.resolve(__dirname, "..", "dist"),
-      filename: isProd ? "[name].[contenthash].js" : "bundle.js",
+      path: getDistDir(),
+      filename: isProd ? "js/[name].[contenthash].js" : "js/bundle.js",
+      chunkFilename: isProd
+        ? "js/[name].[contenthash].chunk.js"
+        : "js/[name].chunk.js",
       publicPath: resolvedPublicPath,
       clean: true,
     },
@@ -41,13 +96,10 @@ function createBaseConfig({
           use: {
             loader: "babel-loader",
             options: {
+              babelrc: false,
               cacheDirectory: true,
-              presets: [
-                ["@babel/preset-env", { targets: "defaults" }],
-                ["@babel/preset-react", { runtime: "automatic" }],
-              ],
+              configFile: babelConfigPath,
               plugins: [
-                "babel-plugin-react-compiler",
                 ...(enableReactRefresh ? ["react-refresh/babel"] : []),
               ],
             },
@@ -55,27 +107,27 @@ function createBaseConfig({
         },
         {
           test: /\.css$/,
-          use: [
-            isProd ? MiniCssExtractPlugin.loader : "style-loader",
-            "css-loader",
-            "postcss-loader",
-          ],
+          use: createStyleLoaders(),
         },
         {
           test: /\.(scss|sass)$/,
           use: [
-            isProd ? MiniCssExtractPlugin.loader : "style-loader",
-            "css-loader",
-            "postcss-loader",
+            ...createStyleLoaders(),
             "sass-loader",
           ],
+        },
+        {
+          test: /\.svg$/i,
+          type: "asset/resource",
         },
       ],
     },
     resolve: {
       extensions: [".js", ".jsx"],
       alias: {
-        "@": path.resolve(__dirname, "..", "src"),
+        "@": srcDir,
+        __NBS_APP_MODULE__: getAppModulePath(),
+        __NBS_STYLE_ENTRY__: getStyleEntryPath(),
       },
     },
     plugins: [
@@ -85,16 +137,29 @@ function createBaseConfig({
       }),
       new HtmlWebpackPlugin({
         title,
-        template: path.resolve(__dirname, "..", "src", "index.ejs"),
+        template: getTemplatePath(),
         templateParameters: {
-          env: envVars,
+          env: publicEnvVars,
           NODE_ENV: resolvedMode,
           title,
           basePath,
           publicPath: resolvedPublicPath,
           isProd,
+          serializeWindowEnvValue,
         },
-        minify: isProd,
+        minify: isProd
+          ? {
+              collapseWhitespace: true,
+              keepClosingSlash: true,
+              minifyCSS: true,
+              minifyJS: false,
+              removeComments: true,
+              removeRedundantAttributes: true,
+              removeScriptTypeAttributes: true,
+              removeStyleLinkTypeAttributes: true,
+              useShortDoctype: true,
+            }
+          : false,
       }),
     ],
   };
@@ -109,13 +174,17 @@ function resolveProfile() {
   const profile = process.env.ENV_PROFILE;
 
   if (!profile) {
-    error("No env profile provided. Set ENV_PROFILE to a profile defined in .env-cmdrc.");
+    error(
+      "No env profile provided. Set ENV_PROFILE to a profile defined in .env-cmdrc.",
+    );
     process.exit(1);
   }
 
   if (!ENV[profile]) {
-    const available = Object.keys(ENV).filter(key => key !== "default");
-    error(`Unknown env profile "${profile}". Available: ${available.join(", ")}`);
+    const available = Object.keys(ENV).filter((key) => key !== "default");
+    error(
+      `Unknown env profile "${profile}". Available: ${available.join(", ")}`,
+    );
     process.exit(1);
   }
 
@@ -141,7 +210,8 @@ function resolveProfile() {
   const publicPath = basePath ? `${basePath}/` : "/";
   const title = process.env.APP_TITLE || envVars.APP_TITLE || "my-company-v1";
   const port = Number(process.env.PORT || envVars.PORT) || 3000;
-  const openBrowserValue = process.env.OPEN_BROWSER ?? envVars.OPEN_BROWSER ?? "false";
+  const openBrowserValue =
+    process.env.OPEN_BROWSER ?? envVars.OPEN_BROWSER ?? "false";
   const openBrowser = String(openBrowserValue).toLowerCase() === "true";
   const enableReactRefresh = process.env.ENABLE_REACT_REFRESH === "true";
   const eslintLimit = envVars.ESLINT_MAX_WARNINGS_PER_FILE;
@@ -168,8 +238,17 @@ const config = () => {
   banner();
   console.log("");
 
-  const { profile, envVars, mode, basePath, publicPath, title, port, openBrowser, enableReactRefresh } =
-    resolveProfile();
+  const {
+    profile,
+    envVars,
+    mode,
+    basePath,
+    publicPath,
+    title,
+    port,
+    openBrowser,
+    enableReactRefresh,
+  } = resolveProfile();
 
   if (mode === "development") {
     success(`Starting dev server with profile "${profile}" (${mode}).`);
@@ -190,13 +269,13 @@ const config = () => {
         port,
         openBrowser,
         enableReactRefresh,
-      })
+      }),
     );
   }
 
   if (mode === "production") {
     success(`Building with profile "${profile}" (${mode}).`);
-    info(`Output: ${path.resolve(process.cwd(), "dist")}`);
+    info(`Output: ${getDistDir()}`);
     return merge(
       createBaseConfig({
         mode,
@@ -205,7 +284,7 @@ const config = () => {
         basePath,
         title,
       }),
-      createProdConfig()
+      createProdConfig(),
     );
   }
 
@@ -220,4 +299,5 @@ const config = () => {
 };
 
 config.createBaseConfig = createBaseConfig;
+config.resolveProfile = resolveProfile;
 module.exports = config;
