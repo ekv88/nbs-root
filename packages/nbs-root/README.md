@@ -4,6 +4,11 @@ Reusable frontend tooling shell for consumer projects. It provides a CLI for dev
 
 By default the package serves its own Babel, ESLint, PostCSS, Tailwind-ready, HTML template, runtime entry, and hydration setup. Consumer projects only need their source files plus `.env-cmdrc`. If a consumer project adds its own config files or bootstrap entry, those override the package defaults.
 
+## Installation
+```bash
+npm i @ekv88/nbs-root
+```
+
 ## CLI
 - `nbs-root dev:development`
 - `nbs-root build:production`

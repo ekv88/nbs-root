@@ -13,11 +13,10 @@ Minimal, project-agnostic tooling package built around Tailwind and Webpack. The
 - Generates AI-readable Markdown site context with `build-ai:*`
 
 ## Consumer quick start
-Install `nbs-root` into another project together with React:
+Install `nbs-root` into another project:
 
 ```bash
-npm install react react-dom
-npm install -D @ekv88/nbs-root
+npm i @ekv88/nbs-root
 ```
 
 Minimal consumer layout:

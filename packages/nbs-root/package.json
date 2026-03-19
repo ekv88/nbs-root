@@ -1,7 +1,16 @@
 {
   "name": "@ekv88/nbs-root",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Reusable frontend tooling shell for consumer projects.",
+  "homepage": "https://github.com/ekv88/nbs-root#readme",
+  "bugs": {
+    "url": "https://github.com/ekv88/nbs-root/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ekv88/nbs-root.git",
+    "directory": "packages/nbs-root"
+  },
   "publishConfig": {
     "access": "public"
   },
